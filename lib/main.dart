@@ -35,34 +35,49 @@ void setupWindow() {
 }
 
 class Counter with ChangeNotifier {
-  int value = 0;
+  int _value = 0;
+
+  int get value => _value;
 
   void increment() {
-    value += 1;
-    notifyListeners();
-  }
-
-  void decrement() {
-    if (value > 0) {
-      value -= 1;
+    if (_value < 99) {
+      _value += 1;
       notifyListeners();
     }
   }
 
+  void decrement() {
+    if (_value > 0) {
+      _value -= 1;
+      notifyListeners();
+    }
+  }
+
+  void setValue(double newValue) {
+    _value = newValue.toInt();
+    notifyListeners();
+  }
+
   Color get backgroundColor {
-    if (value <= 12) return Colors.lightBlue;
-    if (value <= 19) return Colors.lightGreen;
-    if (value <= 30) return Colors.red;
-    if (value <= 50) return Colors.orange;
+    if (_value <= 12) return Colors.lightBlue;
+    if (_value <= 19) return Colors.lightGreen;
+    if (_value <= 30) return Colors.yellow;
+    if (_value <= 50) return Colors.orange;
     return Colors.grey;
   }
 
   String get message {
-    if (value <= 12) return "You're a child!";
-    if (value <= 19) return "Teenager time!";
-    if (value <= 30) return "You're a young adult!";
-    if (value <= 50) return "You're an adult now!";
+    if (_value <= 12) return "You're a child!";
+    if (_value <= 19) return "Teenager time!";
+    if (_value <= 30) return "You're a young adult!";
+    if (_value <= 50) return "You're an adult now!";
     return "Golden years!";
+  }
+
+  Color get progressBarColor {
+    if (_value <= 33) return Colors.green;
+    if (_value <= 67) return Colors.yellow;
+    return Colors.red;
   }
 }
 
@@ -92,20 +107,20 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: counter.backgroundColor,
       appBar: AppBar(
-        title: const Text('Flutter Demo Home Page'),
+        title: const Text('Flutter Age Counter'),
       ),
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withOpacity(0.9),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'You have pushed the button this many times:',
+                'Your Age:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
@@ -118,10 +133,34 @@ class MyHomePage extends StatelessWidget {
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 20),
+
+              // Progress Bar
+              LinearProgressIndicator(
+                value: counter.value / 99, // Normalize between 0 and 1
+                color: counter.progressBarColor,
+                backgroundColor: Colors.grey[300],
+                minHeight: 10,
+              ),
+              const SizedBox(height: 20),
+
+              // Age Slider
+              Slider(
+                value: counter.value.toDouble(),
+                min: 0,
+                max: 99,
+                divisions: 99,
+                label: '${counter.value}',
+                onChanged: (newValue) {
+                  counter.setValue(newValue);
+                },
+              ),
             ],
           ),
         ),
       ),
+
+      // Buttons for Increment and Decrement
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
